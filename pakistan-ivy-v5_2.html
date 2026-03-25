@@ -727,7 +727,7 @@ footer{background:var(--white);border-top:1px solid var(--g1);padding:22px 32px;
     </div>
     <div class="partner-form reveal d2">
       <h3>Inquire for Partnership</h3>
-      <p>Fill in the form below and our team will get back to you within 48 hours. You can also email us directly at <strong>pakistantoivyleagues@gmail.com</strong></p>
+      <p>Fill in the form below and our team will get back to you within 48 hours. You can also email us directly at <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="037362686a7077626d776c6a757a6f66626476667043646e626a6f2d606c6e">[email&#160;protected]</a></strong></p>
       <div class="form-row">
         <input type="text" class="form-input" placeholder="Your Name"/>
         <input type="email" class="form-input" placeholder="Email Address"/>
@@ -756,7 +756,7 @@ footer{background:var(--white);border-top:1px solid var(--g1);padding:22px 32px;
         </div>
         <div class="email-row">
           <div class="email-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" stroke="#333" stroke-width="1.5"/><path d="M2 7l10 7 10-7" stroke="#333" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-          <div><div class="email-label">Email</div><div class="email-val">pakistantoivyleagues@gmail.com</div></div>
+          <div><div class="email-label">Email</div><div class="email-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e797868c8e9493868993888e919e8b828680928294a7808a868e8bc984888a">[email&#160;protected]</a></div></div>
         </div>
       </div>
       <div class="reveal d3">
@@ -777,7 +777,7 @@ footer{background:var(--white);border-top:1px solid var(--g1);padding:22px 32px;
     <a href="https://www.instagram.com/pakistantoivyleague/" target="_blank">Instagram</a>
     <a href="https://www.linkedin.com/company/pakistan-to-ivy-league/?viewAsMember=true" target="_blank">LinkedIn</a>
     <a href="https://discord.gg/SUks5vpb" target="_blank">Discord</a>
-    <a href="mailto:pakistantoivyleagues@gmail.com">Email</a>
+    <a href="/cdn-cgi/l/email-protection#2c5c4d47455f584d425843455a5540494d4b59495f6c4b414d4540024f4341">Email</a>
     <a href="https://forms.gle/wfK9CLVEo2Ki8QSf8" target="_blank">Sign Up</a>
   </div>
   <div class="f-copy">2025 Pakistan To Ivy Leagues. All rights reserved.</div>
@@ -804,7 +804,99 @@ footer{background:var(--white);border-top:1px solid var(--g1);padding:22px 32px;
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+
+  // ============================================================
+  // SUPABASE INTEGRATION
+  // Replace the two values below with your Supabase credentials
+  // Go to: supabase.com > your project > Settings > API
+  // ============================================================
+  const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+  const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+  const SESSION_ID = 'sess_' + Math.random().toString(36).slice(2,10) + '_' + Date.now();
+
+  async function sbInsert(table, data) {
+    if (SUPABASE_URL === 'YOUR_SUPABASE_URL') return; // not configured yet
+    try {
+      const r = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(data)
+      });
+      return r.ok;
+    } catch(e) { console.warn('Supabase error:', e); return false; }
+  }
+
+  // ── PARTNERSHIP FORM: wire up to Supabase ──
+  (function() {
+    const form = document.querySelector('.partner-form');
+    if (!form) return;
+    const btn = form.querySelector('.form-submit');
+    btn.addEventListener('click', async () => {
+      const inputs = form.querySelectorAll('.form-input');
+      const ta = form.querySelector('.form-textarea');
+      const name = inputs[0]?.value?.trim();
+      const email = inputs[1]?.value?.trim();
+      const org = inputs[2]?.value?.trim();
+      const type = inputs[3]?.value?.trim();
+      const msg = ta?.value?.trim();
+      if (!name || !email || !email.includes('@')) {
+        showFB(btn, 'Please enter your name and a valid email.', 'error'); return;
+      }
+      btn.textContent = 'Sending...'; btn.disabled = true;
+      const ok = await sbInsert('partnerships', {
+        contact_name: name, email, organization: org||null,
+        partnership_type: type||null, message: msg||null
+      });
+      if (ok) {
+        showFB(btn, 'Sent! We will reply within 48 hours.', 'success');
+        form.querySelectorAll('.form-input,.form-textarea').forEach(el => el.value = '');
+      } else {
+        showFB(btn, 'Could not send. Please email pakistantoivyleagues@gmail.com directly.', 'error');
+      }
+      btn.textContent = 'Send Inquiry'; btn.disabled = false;
+    });
+  })();
+
+  function showFB(btn, msg, type) {
+    let fb = document.getElementById('pf-feedback');
+    if (!fb) { fb = document.createElement('div'); fb.id = 'pf-feedback';
+      fb.style.cssText = 'margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.74rem;font-weight:500;';
+      btn.after(fb); }
+    fb.textContent = msg;
+    fb.style.background = type==='success'?'#f0fdf4':'#fef2f2';
+    fb.style.color = type==='success'?'#16a34a':'#dc2626';
+    fb.style.border = '1px solid '+(type==='success'?'#bbf7d0':'#fecaca');
+    setTimeout(() => fb && fb.remove(), 6000);
+  }
+
+  // ── CHAT: log every conversation to Supabase ──
+  // Wrap the existing sendMsg to also persist to Supabase
+  const _origSend = window.sendMsg || function(){};
+  async function sendMsgWithLog(text) {
+    if (!text.trim()) return;
+    addMsg(text, 'user');
+    chatSugs.style.display = 'none';
+    const reply = getReply(text);
+    setTimeout(() => addMsg(reply, 'bot'), 900);
+    chatInput.value = '';
+    sbInsert('chat_messages', {
+      session_id: SESSION_ID,
+      user_question: text,
+      bot_reply: reply,
+      status: (reply.includes('email us') || reply.includes('pakistantoivyleagues')) ? 'Needs Follow-up' : 'Auto-Replied'
+    });
+  }
+  // Re-attach chat listeners to use the logged version
+  document.getElementById('chatSend').onclick = () => sendMsgWithLog(document.getElementById('chatInput').value);
+  document.getElementById('chatInput').onkeydown = e => { if(e.key==='Enter') sendMsgWithLog(e.target.value); };
+  document.querySelectorAll('.chat-sug').forEach(b => b.onclick = () => sendMsgWithLog(b.dataset.msg));
+</script><script>
 const sc=document.getElementById('star-cur');
 document.addEventListener('mousemove',e=>{sc.style.left=e.clientX+'px';sc.style.top=e.clientY+'px';});
 document.addEventListener('mousedown',()=>sc.style.transform='translate(-50%,-50%) scale(.65) rotate(22deg)');
@@ -842,11 +934,4 @@ const replies={'how do i apply?':'Great question! Start with our Guide section. 
 function addMsg(t,type){const d=document.createElement('div');d.className='chat-msg '+type;d.innerHTML=t+'<div class="chat-msg-time">Just now</div>';chatMsgs.appendChild(d);chatMsgs.scrollTop=chatMsgs.scrollHeight;}
 function getReply(m){const k=m.toLowerCase().trim();for(const r in replies){if(r!=='default'&&k.includes(r.replace('?','')))return replies[r];}return replies['default'];}
 function sendMsg(t){if(!t.trim())return;addMsg(t,'user');chatSugs.style.display='none';setTimeout(()=>addMsg(getReply(t),'bot'),900);chatInput.value='';}
-chatBtn.addEventListener('click',()=>chatWindow.classList.toggle('open'));
-chatClose.addEventListener('click',()=>chatWindow.classList.remove('open'));
-chatSend.addEventListener('click',()=>sendMsg(chatInput.value));
-chatInput.addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg(chatInput.value);});
-document.querySelectorAll('.chat-sug').forEach(b=>b.addEventListener('click',()=>sendMsg(b.dataset.msg)));
-</script>
-</body>
-</html>
+chatBtn.add
